@@ -11,34 +11,56 @@ public class BitStuffingReceiver implements Receiver {
 	@Override
 	public String getPacket(String frame) {
 		countOnes = 0;
-		if (!isAcceptedFormat(frame)) {
-			throw new DamagedFrameException("the frame has been damaged");
-		}
-		String stuffedPacket = frame.substring(8, frame.length() - 8);
+		throwExceptionIfNotCorrectFormat(frame);
+		String stuffedPacket = extractBitStuffedPacket(frame);
 		StringBuffer packet =  new StringBuffer();
 		for (int i = 0; i < stuffedPacket.length(); i++) {
 			char bit = stuffedPacket.charAt(i);
-			if (!isAcceptableBit(bit)) {
-				throw new DamagedFrameException("unrecognizable character.");
-			}
-			if (bit == ONE_BIT) {
-				countOnes++;
-			} else {
-				countOnes = 0;
-			}
-			if (countOnes == MAX_SUCCESSIVE_ONES) {
-				countOnes = 0;
-				if (i + 1 < stuffedPacket.length()) {
-					char nextBit = stuffedPacket.charAt(i + 1);
-					if (nextBit != ESCAPE_BIT) {
-						throw new DamagedFrameException("illegal escape character.");
-					}
-					i++; // escape this character if it is a valid escape character
-				}
-			}
+			throwExceptionIfInvalidBit(bit);
+			updateSuccessiveOneCount(bit);
+			i = processBitIfMaxSuccessiveOneReached(stuffedPacket, i);
 			packet.append(bit);
  		}
 		return packet.toString();
+	}
+
+	private int processBitIfMaxSuccessiveOneReached(String stuffedPacket, int i) {
+		if (countOnes == MAX_SUCCESSIVE_ONES) {
+			countOnes = 0;
+			if (i + 1 < stuffedPacket.length()) {
+				char nextBit = stuffedPacket.charAt(i + 1);
+				if (nextBit != ESCAPE_BIT) {
+					throw new DamagedFrameException("illegal escape character.");
+				}
+				i++; // escape this character if it is a valid escape character
+			}
+		}
+		return i;
+	}
+
+	private void updateSuccessiveOneCount(char bit) {
+		if (bit == ONE_BIT) {
+			countOnes++;
+		} else {
+			countOnes = 0;
+		}
+	}
+
+	private void throwExceptionIfInvalidBit(char bit) {
+		if (!isAcceptableBit(bit)) {
+			throw new DamagedFrameException("unrecognizable character.");
+		}
+	}
+
+	private String extractBitStuffedPacket(String frame) {
+		String stuffedPacket = frame.substring(8, frame.length() - 8);
+		return stuffedPacket;
+	}
+
+	private void throwExceptionIfNotCorrectFormat(String frame) {
+		if (!isAcceptedFormat(frame)) {
+			throw new DamagedFrameException("the frame has been damaged");
+		}
 	}
 
 	private boolean isAcceptedFormat(String frame) {

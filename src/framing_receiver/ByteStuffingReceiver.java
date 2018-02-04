@@ -57,6 +57,4 @@ public class ByteStuffingReceiver implements Receiver {
 	private boolean isFlag(char character) {
 		return character == FLAG;
 	}
-	
-
 }
