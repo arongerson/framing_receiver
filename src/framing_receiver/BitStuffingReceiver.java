@@ -33,6 +33,8 @@ public class BitStuffingReceiver implements Receiver {
 					throw new DamagedFrameException("illegal escape character.");
 				}
 				i++; // escape this character if it is a valid escape character
+			} else {
+				throw new DamagedFrameException("missing escape character.");
 			}
 		}
 		return i;

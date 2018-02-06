@@ -9,10 +9,9 @@ public class ReceiverTest {
 		try {
 			System.out.println(byteCountReceiver.getPacket("4abc")); 
 			System.out.println(byteStuffingReceiver.getPacket("FABDEEF"));
-			System.out.println(bitStuffingReceiver.getPacket("011111100111110101010101111110"));
+			System.out.println(bitStuffingReceiver.getPacket("011111101111101111101111110"));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
-
 }
